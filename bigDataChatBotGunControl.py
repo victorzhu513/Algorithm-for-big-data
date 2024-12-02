@@ -1,5 +1,6 @@
 import os
 import requests
+import time
 
 cwd = dir_path = os.path.dirname(os.path.realpath(__file__))
 gunControlImages = cwd + "\\data\\images\\gun_control"
@@ -11,7 +12,30 @@ abortionTweets = cwd + "\\data\\abortion_train"
 
 # Configure your Ollama API endpoints and keys
 OLLAMA_API_URL = "http://localhost:11434/api/chat"
+OLLAMA_API_PROMPT_URL = "http://localhost:11434/api/generate"
 API_KEY = "~/.ollama/id_ed25519.pub"
+
+# Helper function to call the Ollama API for text analysis
+def prompt(content):
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "type": "text",
+        "content": content,
+        "model": "llama3.2",
+    }
+
+
+
+    response = requests.post(OLLAMA_API_PROMPT_URL, headers=headers, json=payload)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error: {response.status_code}, {response.text}")
+        return None
+    
 
 # Helper function to call the Ollama API for text analysis
 def analyze_text(content):
@@ -24,6 +48,8 @@ def analyze_text(content):
         "content": content,
         "model": "llama3.2",
     }
+
+
 
     response = requests.post(OLLAMA_API_URL, headers=headers, json=payload)
     if response.status_code == 200:
@@ -77,7 +103,7 @@ if __name__ == "__main__":
 
     image_path = None
     # Example tweet text
-    test = analyze_text(prompt)
+    test = generate(prompt)
     
 
 
