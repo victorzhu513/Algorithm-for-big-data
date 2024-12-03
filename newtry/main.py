@@ -1,15 +1,23 @@
 import requests
 import json
 import csv
+import base64
 
 # Ollama server settings
 url = "http://localhost:11434/api/chat"
+llava_url = "http://localhost:11434/api/generate"
 headers = {"Content-Type": "application/json"}
 
 # Initialize the conversation history
 conversation = [
     {"role": "user", "content": "Hello!"}
 ]
+
+def convert_to_base64(file_location):
+    with open(file_location, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+    return encoded_string
+
 
 
 # Function to send a message and get a response
