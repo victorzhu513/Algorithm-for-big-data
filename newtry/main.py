@@ -13,7 +13,7 @@ conversation = [
 
 
 # Function to send a message and get a response
-def send_message(new_message):
+def send_message(new_message, count):
     # Add the new message to the conversation
     conversation.append({"role": "user", "content": new_message})
 
@@ -21,7 +21,10 @@ def send_message(new_message):
     response = requests.post(url, headers=headers, json={
         "model": "llama3",
         "messages": conversation,
-        "stream": False
+        "stream": False,
+        "options": {
+            "num_ctx": count
+        }
     })
 
     # Get the bot's response
@@ -46,7 +49,7 @@ with open(file_path, "r") as file:
 baseprompt = "Given the data gave you, find the persuasiveness and stance of the statement, give an answer in this exact format: persuasiveness: [yes/no], stance: [oppose/support]. Dont give anything else just simply what i ask for. this should be in json format ALWAYS -- Statement: "
 
 #First prompt to give the llm info
-print(send_message("Here are examples of persuasive and stance evaluations for statements for the topic of abortion. Use this to guide your future responses:\n" + json_string))
+print(send_message("Here are examples of persuasive and stance evaluations for statements for the topic of abortion. Use this to guide your future responses:\n" + json_string,12000))
 
 # Get the test info
 # Path to your CSV file
@@ -69,7 +72,7 @@ for row in abortion_test_data:
     correct_persuasiveness = row['persuasiveness']
     correct_stance = row['stance']
 
-    response_json = send_message(baseprompt + tweet_text)
+    response_json = send_message(baseprompt + tweet_text,4096)
     try:
         # Attempt to parse the JSON string
         response_dict = json.loads(response_json)
