@@ -58,7 +58,7 @@ def get_image_details(image):
     # Make the API call
     response = requests.post(llava_url, headers=headers, json={
         "model": "llava",
-        "prompt": "what is this photo? also extract any text from it",
+        "prompt": "Extract any text from this image. Thats it. Dont say anything else. dont comment on the text",
         "images": [image],
         "stream": False
     })
@@ -81,7 +81,7 @@ with open(file_path, "r") as file:
     json_string = json.dumps(json_data)  # Convert Python object to JSON string
 
 
-baseprompt = "Given the data provided, find the stance using the statement and the description of the photo. To determine persuasion, only use the statement and dont use the description of the photo, give an answer in this exact format: {persuasiveness: [yes/no], stance: [oppose/support]}. Dont give anything else just simply what i ask for. make sure this returns a response in json format only - should be lowercase and have correct json format -- Statement: "
+baseprompt = "Given the data provided, find the stance (abortion) and persuasiveness using the statement and the photo text, give an answer in this exact format: {persuasiveness: [yes/no], stance: [oppose/support]}. Dont give anything else just simply what i ask for. make sure this returns a response in json format only - should be lowercase and have correct json format -- Statement: "
 
 #First prompt to give the llm info
 print(send_message("Here are examples of persuasive and stance evaluations for statements for the topic of abortion. Use this to guide your future responses:\n" + json_string,12000))
@@ -114,7 +114,7 @@ for row in abortion_test_data:
     # print(image_description)
     if image_description is None:
         image_description = "No description available"
-    response_json = send_message(baseprompt + tweet_text + "Description of photo: " + image_description,4096)
+    response_json = send_message(baseprompt + tweet_text + "photo text: " + image_description,4096)
     print(response_json)
     try:
         # Attempt to parse the JSON string
