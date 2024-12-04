@@ -2,6 +2,7 @@ import requests
 import json
 import csv
 import base64
+import os
 
 # Ollama server settings
 url = "http://localhost:11434/api/chat"
@@ -13,7 +14,12 @@ conversation = [
     {"role": "user", "content": "Hello!"}
 ]
 
-def convert_to_base64(file_location):
+def convert_to_base64(file_name):
+    # Get the current working directory
+    current_directory = os.getcwd()
+
+    # Combine the current directory with the file name
+    file_location = os.path.join(current_directory, file_name)
     with open(file_location, "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
     return encoded_string
@@ -45,6 +51,27 @@ def send_message(new_message, count):
         print("Error:", response.status_code, response.text)
         return None
 
+# Function to send a message and get a response
+def get_image_details(image):
+    # Add the new message to the conversation
+
+    # Make the API call
+    response = requests.post(llava_url, headers=headers, json={
+        "model": "llava",
+        "prompt": "what is this photo? also extract any text from it",
+        "images": [image],
+        "stream": False
+    })
+
+    # Get the bot's response
+    if response.status_code == 200:
+        bot_message = response.json()["response"]
+        # Add the bot's response to the conversation
+        return bot_message
+    else:
+        print("Error:", response.status_code, response.text)
+        return None
+
 # Path to your JSON file
 file_path = "abortion_train.json"
 
@@ -54,7 +81,7 @@ with open(file_path, "r") as file:
     json_string = json.dumps(json_data)  # Convert Python object to JSON string
 
 
-baseprompt = "Given the data gave you, find the persuasiveness and stance of the statement, give an answer in this exact format: persuasiveness: [yes/no], stance: [oppose/support]. Dont give anything else just simply what i ask for. this should be in json format ALWAYS -- Statement: "
+baseprompt = "Given the data provided, find the stance using the statement and the description of the photo. To determine persuasion, only use the statement and dont use the description of the photo, give an answer in this exact format: {persuasiveness: [yes/no], stance: [oppose/support]}. Dont give anything else just simply what i ask for. make sure this returns a response in json format only - should be lowercase and have correct json format -- Statement: "
 
 #First prompt to give the llm info
 print(send_message("Here are examples of persuasive and stance evaluations for statements for the topic of abortion. Use this to guide your future responses:\n" + json_string,12000))
@@ -79,8 +106,16 @@ for row in abortion_test_data:
     tweet_text = row['tweet_text']
     correct_persuasiveness = row['persuasiveness']
     correct_stance = row['stance']
+    tweet_id = row['tweet_id']
 
-    response_json = send_message(baseprompt + tweet_text,4096)
+    # Convert image to base 64
+    base64encodedString = convert_to_base64("data/images/abortion/" + tweet_id + ".jpg")
+    image_description = get_image_details(base64encodedString)
+    # print(image_description)
+    if image_description is None:
+        image_description = "No description available"
+    response_json = send_message(baseprompt + tweet_text + "Description of photo: " + image_description,4096)
+    print(response_json)
     try:
         # Attempt to parse the JSON string
         response_dict = json.loads(response_json)
