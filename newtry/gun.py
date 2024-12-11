@@ -81,14 +81,14 @@ with open(file_path, "r") as file:
     json_string = json.dumps(json_data)  # Convert Python object to JSON string
 
 
-baseprompt = "Given the data provided, find the stance (abortion) and persuasiveness using the statement and the photo text, give an answer in this exact format: {persuasiveness: [yes/no], stance: [oppose/support]}. Dont give anything else just simply what i ask for. make sure this returns a response in json format only - should be lowercase and have correct json format -- Statement: "
+baseprompt = "Given the data provided, find the stance (pro gun) and persuasiveness using the statement and the photo text, give an answer in this exact format: {persuasiveness: [yes/no], stance: [oppose/support]}. Dont give anything else just simply what i ask for. make sure this returns a response in json format only - should be lowercase and have correct json format -- Statement: "
 
 #First prompt to give the llm info
-print(send_message("Here are examples of persuasive and stance evaluations for statements for the topic of abortion. Use this to guide your future responses:\n" + json_string,12000))
+print(send_message("Here are examples of persuasive and stance evaluations for statements for the topic of pro gun. Use this to guide your future responses. Look for keywords such as 'progun' 'rights' 'constitution' and 'gun rights' for supporting this topic. Make sure to make hashtags more important in your analysis:\n" + json_string,12000))
 
 # Get the test info
 # Path to your CSV file
-csv_file_path = 'abortion_test.csv'
+csv_file_path = 'gun_control_test.csv'
 
 # Open the file and convert it to a dictionary
 with open(csv_file_path, mode='r',encoding='utf-8', errors='ignore') as file:
@@ -109,7 +109,7 @@ for row in abortion_test_data:
     tweet_id = row['tweet_id']
 
     # Convert image to base 64
-    base64encodedString = convert_to_base64("data/images/abortion/" + tweet_id + ".jpg")
+    base64encodedString = convert_to_base64("data/images/gun_control/" + tweet_id + ".jpg")
     image_description = get_image_details(base64encodedString)
     # print(image_description)
     if image_description is None:
