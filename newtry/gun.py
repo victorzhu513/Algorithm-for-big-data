@@ -73,7 +73,7 @@ def get_image_details(image):
         return None
 
 # Path to your JSON file
-file_path = "abortion_train.json"
+file_path = "gun_control_train.json"
 
 # Read the JSON file and convert it to a string
 with open(file_path, "r") as file:
@@ -96,13 +96,13 @@ with open(csv_file_path, mode='r',encoding='utf-8', errors='ignore') as file:
     csv_reader = csv.DictReader(file)
 
     # Convert to a list of dictionaries
-    abortion_test_data = [row for row in csv_reader]
+    gun_control_test_data = [row for row in csv_reader]
 
 correct_persuasiveness_count = 0
 correct_stance_count = 0
 total = 0
 
-for row in abortion_test_data:
+for row in gun_control_test_data:
     tweet_text = row['tweet_text']
     correct_persuasiveness = row['persuasiveness']
     correct_stance = row['stance']
